@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\CodeMaster\\Desktop\\DevProjects\\restaurant_tracker\\api_restaurant_tracker\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{FD490BB1-5394-956D-002F-6A3042DE6922}|src\\RestaurantTracker.Api\\RestaurantTracker.Api.csproj|c:\\users\\codemaster\\desktop\\devprojects\\restaurant_tracker\\api_restaurant_tracker\\src\\restauranttracker.api\\controllers\\restaurantentrycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FD490BB1-5394-956D-002F-6A3042DE6922}|src\\RestaurantTracker.Api\\RestaurantTracker.Api.csproj|solutionrelative:src\\restauranttracker.api\\controllers\\restaurantentrycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +14,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "RestaurantEntryController.cs",
+              "DocumentMoniker": "C:\\Users\\CodeMaster\\Desktop\\DevProjects\\restaurant_tracker\\api_restaurant_tracker\\src\\RestaurantTracker.Api\\Controllers\\RestaurantEntryController.cs",
+              "RelativeDocumentMoniker": "src\\RestaurantTracker.Api\\Controllers\\RestaurantEntryController.cs",
+              "ToolTip": "C:\\Users\\CodeMaster\\Desktop\\DevProjects\\restaurant_tracker\\api_restaurant_tracker\\src\\RestaurantTracker.Api\\Controllers\\RestaurantEntryController.cs",
+              "RelativeToolTip": "src\\RestaurantTracker.Api\\Controllers\\RestaurantEntryController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T23:31:51.498Z",
+              "EditorCaption": ""
             }
           ]
         }
