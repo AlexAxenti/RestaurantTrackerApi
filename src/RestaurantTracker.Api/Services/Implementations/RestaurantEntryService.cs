@@ -1,6 +1,12 @@
+using RestaurantTracker.Api.Data;
+using RestaurantTracker.Api.Dtos;
+using RestaurantTracker.Api.Entities;
+
+namespace RestaurantTracker.Api.Services;
+
 public class RestaurantEntryService : IRestaurantEntryService
 {
-    private static readonly List<Restaurant> Restaurants = MockRestaurants.Restaurants;
+    // private static readonly List<Restaurant> Restaurants = MockRestaurants.Restaurants;
     private static readonly List<RestaurantEntry> RestaurantEntries = MockRestaurantEntries.RestaurantEntries;
 
     public Task<RestaurantEntry> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)

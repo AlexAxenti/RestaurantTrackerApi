@@ -1,5 +1,6 @@
-using System;
-using System.Collections.Generic;
+using RestaurantTracker.Api.Entities;
+
+namespace RestaurantTracker.Api.Data;
 
 public static class MockRestaurantEntries
 {

@@ -1,3 +1,5 @@
+namespace RestaurantTracker.Api.Entities;
+
 public class Restaurant
 {
     public int Id { get; set; }
