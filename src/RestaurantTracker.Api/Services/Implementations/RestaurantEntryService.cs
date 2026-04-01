@@ -6,8 +6,13 @@ namespace RestaurantTracker.Api.Services;
 
 public class RestaurantEntryService : IRestaurantEntryService
 {
-    private static readonly List<Restaurant> Restaurants = MockRestaurants.Restaurants;
+    private readonly IRestaurantService _restaurantService;
     private static readonly List<RestaurantEntry> RestaurantEntries = MockRestaurantEntries.RestaurantEntries;
+
+    public RestaurantEntryService(IRestaurantService restaurantService)
+    {
+        _restaurantService = restaurantService;
+    }
 
     private static RestaurantEntryResponse ToResponse(RestaurantEntry entry, Restaurant restaurant) =>
         new RestaurantEntryResponse(
@@ -32,7 +37,7 @@ public class RestaurantEntryService : IRestaurantEntryService
     {
         var entry = RestaurantEntries.FirstOrDefault(e => e.Id == id);
         if (entry == null) return Task.FromResult<RestaurantEntryResponse?>(null);
-        var restaurant = Restaurants.First(r => r.Id == entry.RestaurantId);
+        var restaurant = _restaurantService.GetById(entry.RestaurantId)!;
         return Task.FromResult<RestaurantEntryResponse?>(ToResponse(entry, restaurant));
     }
 
@@ -40,30 +45,26 @@ public class RestaurantEntryService : IRestaurantEntryService
     {
         var result = RestaurantEntries
             .Where(e => e.UserId == userId && (!status.HasValue || e.Status == status.Value))
-            .Select(e => ToResponse(e, Restaurants.First(r => r.Id == e.RestaurantId)));
+            .Select(e => ToResponse(e, _restaurantService.GetById(e.RestaurantId)!));
         return Task.FromResult(result.AsEnumerable());
     }
 
     public Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)
     {
-        var restaurant = Restaurants.FirstOrDefault(r => r.GooglePlaceId == request.GooglePlaceId);
+        var restaurant = _restaurantService.GetByGooglePlaceId(request.GooglePlaceId);
 
         if (restaurant == null)
         {
-            restaurant = new Restaurant
+            restaurant = _restaurantService.Create(new Restaurant
             {
-                Id = Restaurants.Max(r => r.Id) + 1,
                 GooglePlaceId = request.GooglePlaceId,
                 Name = request.RestaurantName,
                 FormattedAddress = request.RestaurantFormattedAddress,
                 City = request.RestaurantCity,
                 Region = request.RestaurantRegion,
                 Country = request.RestaurantCountry,
-                PostalCode = request.RestaurantPostalCode,
-                CreatedAt = DateTimeOffset.UtcNow,
-                LastSynced = DateTimeOffset.UtcNow
-            };
-            Restaurants.Add(restaurant);
+                PostalCode = request.RestaurantPostalCode
+            });
         }
 
         var newEntry = new RestaurantEntry
@@ -94,7 +95,7 @@ public class RestaurantEntryService : IRestaurantEntryService
         if (request.VisitedAt.HasValue) entry.VisitedAt = request.VisitedAt.Value;
 
         entry.UpdatedAt = DateTimeOffset.UtcNow;
-        var restaurant = Restaurants.First(r => r.Id == entry.RestaurantId);
+        var restaurant = _restaurantService.GetById(entry.RestaurantId)!;
         return Task.FromResult<RestaurantEntryResponse?>(ToResponse(entry, restaurant));
     }
 

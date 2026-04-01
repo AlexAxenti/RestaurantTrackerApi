@@ -1,3 +1,4 @@
+using RestaurantTracker.Api.Endpoints;
 using RestaurantTracker.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IRestaurantEntryService, RestaurantEntryService>();
+builder.Services.AddSingleton<IRestaurantService, RestaurantService>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
 var app = builder.Build();
@@ -26,26 +28,8 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-// ============ mock data endpoints ============
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-// ============ mock data endpoints ============
+RestaurantEndpoint.Map(app);
+SearchEndpoint.Map(app);
 
 app.Run();
 
