@@ -46,11 +46,31 @@ public class RestaurantEntryService : IRestaurantEntryService
 
     public Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)
     {
+        var restaurant = Restaurants.FirstOrDefault(r => r.GooglePlaceId == request.GooglePlaceId);
+
+        if (restaurant == null)
+        {
+            restaurant = new Restaurant
+            {
+                Id = Restaurants.Max(r => r.Id) + 1,
+                GooglePlaceId = request.GooglePlaceId,
+                Name = request.RestaurantName,
+                FormattedAddress = request.RestaurantFormattedAddress,
+                City = request.RestaurantCity,
+                Region = request.RestaurantRegion,
+                Country = request.RestaurantCountry,
+                PostalCode = request.RestaurantPostalCode,
+                CreatedAt = DateTimeOffset.UtcNow,
+                LastSynced = DateTimeOffset.UtcNow
+            };
+            Restaurants.Add(restaurant);
+        }
+
         var newEntry = new RestaurantEntry
         {
             Id = RestaurantEntries.Max(e => e.Id) + 1,
             UserId = request.UserId,
-            RestaurantId = request.RestaurantId,
+            RestaurantId = restaurant.Id,
             Status = request.Status,
             Rating = request.Rating,
             Notes = request.Notes,
@@ -60,7 +80,6 @@ public class RestaurantEntryService : IRestaurantEntryService
         };
 
         RestaurantEntries.Add(newEntry);
-        var restaurant = Restaurants.First(r => r.Id == newEntry.RestaurantId);
         return Task.FromResult(ToResponse(newEntry, restaurant));
     }
 

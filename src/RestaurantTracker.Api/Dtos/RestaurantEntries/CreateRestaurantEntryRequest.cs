@@ -8,5 +8,14 @@ public record CreateRestaurantEntryRequest(
     EntryStatus Status,
     float? Rating,
     string? Notes,
-    DateTimeOffset? VisitedAt
+    DateTimeOffset? VisitedAt,
+
+    // Restaurant data
+    string GooglePlaceId,
+    string RestaurantName,
+    string RestaurantFormattedAddress,
+    string RestaurantCity,
+    string RestaurantRegion,
+    string RestaurantCountry,
+    string RestaurantPostalCode
 );
