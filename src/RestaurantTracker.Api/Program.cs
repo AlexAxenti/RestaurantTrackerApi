@@ -8,7 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IRestaurantEntryService, RestaurantEntryService>();
-builder.Services.AddSingleton<IRestaurantService, RestaurantService>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
 var app = builder.Build();
@@ -28,7 +27,6 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-RestaurantEndpoint.Map(app);
 SearchEndpoint.Map(app);
 
 app.Run();
