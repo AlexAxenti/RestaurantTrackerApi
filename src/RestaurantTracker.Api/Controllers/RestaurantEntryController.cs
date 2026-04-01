@@ -17,25 +17,25 @@ public class RestaurantEntryController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<RestaurantEntry?> GetById(int id)
+    public async Task<RestaurantEntryResponse?> GetById(int id)
     {
         return await _restaurantEntryService.GetRestaurantEntryByIdAsync(id);
     }
 
     [HttpGet("user/{userId}")]
-    public async Task<IEnumerable<RestaurantEntry>> GetByUserId(int userId)
+    public async Task<IEnumerable<RestaurantEntryResponse>> GetByUserId(int userId, [FromQuery] EntryStatus? status = null)
     {
-        return await _restaurantEntryService.GetRestaurantEntriesByUserIdAsync(userId);
+        return await _restaurantEntryService.GetRestaurantEntriesByUserIdAsync(userId, status);
     }
 
     [HttpPost]
-    public async Task<RestaurantEntry> Create([FromBody] CreateRestaurantEntryRequest request)
+    public async Task<RestaurantEntryResponse> Create([FromBody] CreateRestaurantEntryRequest request)
     {
         return await _restaurantEntryService.CreateRestaurantEntryAsync(request);
     }
 
     [HttpPut("{id}")]
-    public async Task<RestaurantEntry?> Update(int id, [FromBody] UpdateRestaurantEntryRequest request)
+    public async Task<RestaurantEntryResponse?> Update(int id, [FromBody] UpdateRestaurantEntryRequest request)
     {
         return await _restaurantEntryService.UpdateRestaurantEntryAsync(id, request);
     }
