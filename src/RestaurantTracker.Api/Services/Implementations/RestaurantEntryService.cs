@@ -9,7 +9,19 @@ public class RestaurantEntryService : IRestaurantEntryService
     // private static readonly List<Restaurant> Restaurants = MockRestaurants.Restaurants;
     private static readonly List<RestaurantEntry> RestaurantEntries = MockRestaurantEntries.RestaurantEntries;
 
-    public Task<RestaurantEntry> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)
+    public Task<RestaurantEntry?> GetRestaurantEntryByIdAsync(int id)
+    {
+        var entry = RestaurantEntries.FirstOrDefault(e => e.Id == id);
+        return Task.FromResult(entry);
+    }
+
+    public Task<IEnumerable<RestaurantEntry>> GetRestaurantEntriesByUserIdAsync(int userId)
+    {
+        var entries = RestaurantEntries.Where(e => e.UserId == userId);
+        return Task.FromResult(entries.AsEnumerable());
+    }
+
+        public Task<RestaurantEntry> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)
     {
         var newEntry = new RestaurantEntry
         {
@@ -26,17 +38,6 @@ public class RestaurantEntryService : IRestaurantEntryService
 
         RestaurantEntries.Add(newEntry);
         return Task.FromResult(newEntry);
-    }
-
-    public Task<RestaurantEntry?> GetRestaurantEntryByIdAsync(int id)
-    {
-        var entry = RestaurantEntries.FirstOrDefault(e => e.Id == id);
-        return Task.FromResult(entry);
-    }
-
-    public Task<IEnumerable<RestaurantEntry>> GetAllRestaurantEntriesAsync()
-    {
-        return Task.FromResult(RestaurantEntries.AsEnumerable());
     }
 
     public Task<RestaurantEntry?> UpdateRestaurantEntryAsync(int id, UpdateRestaurantEntryRequest request)
