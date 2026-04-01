@@ -4,7 +4,9 @@ public class RestaurantEntry
 {
     public int Id { get; set; }
     public int UserId { get; set; } 
-    public int RestaurantId { get; set; }
+    public string GooglePlaceId { get; set; } = string.Empty;
+    public string RestaurantName { get; set; } = string.Empty;
+    public string RestaurantAddress { get; set; } = string.Empty;
     public EntryStatus Status { get; set; }
     public float? Rating { get; set; }
     public string? Notes { get; set; }

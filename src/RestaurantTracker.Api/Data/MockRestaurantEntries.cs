@@ -10,7 +10,9 @@ public static class MockRestaurantEntries
         {
             Id = 1,
             UserId = 1,
-            RestaurantId = 1,
+            GooglePlaceId = "1",
+            RestaurantName = "Sushi Place",
+            RestaurantAddress = "456 Sushi St, Sushi City",
             Status = EntryStatus.Visited,
             Rating = 4.5f,
             Notes = "Great vibe, decent food",
@@ -22,7 +24,9 @@ public static class MockRestaurantEntries
         {
             Id = 2,
             UserId = 1,
-            RestaurantId = 2,
+            GooglePlaceId = "2",
+            RestaurantName = "Burger Place",
+            RestaurantAddress = "123 Burger St, Burger City",
             Status = EntryStatus.Planned,
             Rating = null,
             Notes = "Heard it's really good burgers",
@@ -34,7 +38,9 @@ public static class MockRestaurantEntries
         {
             Id = 3,
             UserId = 2,
-            RestaurantId = 1,
+            GooglePlaceId = "1",
+            RestaurantName = "Jack's Diner",
+            RestaurantAddress = "789 Diner St, Diner City",
             Status = EntryStatus.Planned,
             Rating = null,
             Notes = null,
@@ -46,7 +52,9 @@ public static class MockRestaurantEntries
         {
             Id = 4,
             UserId = 2,
-            RestaurantId = 3,
+            GooglePlaceId = "3",
+            RestaurantName = "Sushi Place",
+            RestaurantAddress = "456 Sushi St, Sushi City",
             Status = EntryStatus.Visited,
             Rating = 5.0f,
             Notes = "Amazing sushi, pricey but worth it",

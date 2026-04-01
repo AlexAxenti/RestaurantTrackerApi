@@ -12,9 +12,5 @@ public record CreateRestaurantEntryRequest(
     // Restaurant data
     string GooglePlaceId,
     string RestaurantName,
-    string RestaurantFormattedAddress,
-    string RestaurantCity,
-    string RestaurantRegion,
-    string RestaurantCountry,
-    string RestaurantPostalCode
+    string RestaurantAddress
 );

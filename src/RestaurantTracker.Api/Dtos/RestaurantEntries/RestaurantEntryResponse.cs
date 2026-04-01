@@ -5,7 +5,6 @@ namespace RestaurantTracker.Api.Dtos;
 public record RestaurantEntryResponse(
     int Id,
     int UserId,
-    int RestaurantId,
     EntryStatus Status,
     float? Rating,
     string? Notes,
@@ -13,9 +12,5 @@ public record RestaurantEntryResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     string RestaurantName,
-    string RestaurantFormattedAddress,
-    string RestaurantCity,
-    string RestaurantRegion,
-    string RestaurantCountry,
-    string RestaurantPostalCode
+    string RestaurantAddress
 );

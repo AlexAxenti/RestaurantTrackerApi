@@ -6,5 +6,7 @@ public record UpdateRestaurantEntryRequest(
     EntryStatus? Status,
     float? Rating,
     string? Notes,
-    DateTimeOffset? VisitedAt
+    DateTimeOffset? VisitedAt,
+    string? RestaurantName,
+    string? RestaurantAddress
 );

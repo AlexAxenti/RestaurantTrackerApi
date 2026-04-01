@@ -1,5 +1,6 @@
 namespace RestaurantTracker.Api.Entities;
 
+//TODO Delete after not used in search mock data anymore
 public class Restaurant
 {
     public int Id { get; set; }
