@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using RestaurantTracker.Api.Data;
 using RestaurantTracker.Api.Endpoints;
 using RestaurantTracker.Api.Services;
 
@@ -6,9 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
-builder.Services.AddSingleton<IRestaurantEntryService, RestaurantEntryService>();
-builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
