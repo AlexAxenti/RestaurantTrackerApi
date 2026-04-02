@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using RestaurantTracker.Api.Dtos;
 using RestaurantTracker.Api.Entities;
 
@@ -12,13 +16,17 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IConfiguration _configuration;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IConfiguration configuration
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _configuration = configuration;
     }
 
     [HttpPost("register")]
@@ -82,9 +90,37 @@ public class AuthController : ControllerBase
             });
         }
 
-        return Ok(new
+                 var secret = _configuration["Jwt:Secret"]
+            ?? throw new InvalidOperationException("JWT secret is not configured.");
+
+        var issuer = _configuration["Jwt:Issuer"]
+            ?? throw new InvalidOperationException("JWT issuer is not configured.");
+
+        var audience = _configuration["Jwt:Audience"]
+            ?? throw new InvalidOperationException("JWT audience is not configured.");
+
+        var expiryMinutes = int.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "60");
+
+        var claims = new List<Claim>
         {
-            message = "Login successful."
-        });
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var expiresAtUtc = DateTime.UtcNow.AddMinutes(expiryMinutes);
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: expiresAtUtc,
+            signingCredentials: credentials);
+
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return Ok(new AuthResponse(accessToken, expiresAtUtc));
     }
 }

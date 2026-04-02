@@ -1,12 +1,13 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantTracker.Api.Dtos;
-using RestaurantTracker.Api.Entities;
 using RestaurantTracker.Api.Services;
 
 namespace RestaurantTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/users")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -16,15 +17,15 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<User?> GetById(int id)
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
     {
-        return await _userService.GetUserByIdAsync(id);
-    }
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
 
-    [HttpPut("{id}")]
-    public async Task<User?> Update(int id, [FromBody] UpdateUserRequest request)
-    {
-        return await _userService.UpdateUserAsync(id, request);
+        var user = await _userService.GetCurrentUserAsync(userId);
+        if (user == null) return NotFound();
+
+        return Ok(user);
     }
 }

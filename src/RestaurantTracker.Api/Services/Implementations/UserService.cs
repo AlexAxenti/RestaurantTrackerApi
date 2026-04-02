@@ -1,27 +1,21 @@
 using RestaurantTracker.Api.Data;
 using RestaurantTracker.Api.Dtos;
-using RestaurantTracker.Api.Entities;
 
 namespace RestaurantTracker.Api.Services;
 
 public class UserService : IUserService
 {
-    private static readonly List<User> Users = MockUsers.Users;
+    private readonly ApplicationDbContext _context;
 
-    public Task<User?> GetUserByIdAsync(int id)
+    public UserService(ApplicationDbContext context)
     {
-        var user = Users.FirstOrDefault(u => u.Id == id);
-        return Task.FromResult(user);
+        _context = context;
     }
 
-    public Task<User?> UpdateUserAsync(int id, UpdateUserRequest request)
+    public async Task<UserResponse?> GetCurrentUserAsync(string userId)
     {
-        var user = Users.FirstOrDefault(u => u.Id == id);
-        if (user == null) return Task.FromResult<User?>(null);
-
-        user.Name = request.Name;
-        user.UpdatedAt = DateTimeOffset.UtcNow;
-
-        return Task.FromResult<User?>(user);
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+        return new UserResponse(user.Id, user.Email);
     }
 }
