@@ -6,10 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantTracker.Api.Dtos;
 using RestaurantTracker.Api.Entities;
+using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
+using RestaurantTracker.Api.Data;
 
 namespace RestaurantTracker.Api.Controllers;
 
 //TODO create auth service to go along with this controller
+//TODO return custom error msgs
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -17,16 +21,19 @@ public class AuthController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IConfiguration _configuration;
+    private readonly ApplicationDbContext _dbContext;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        ApplicationDbContext dbContext
     )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _dbContext = dbContext;
     }
 
     [HttpPost("register")]
@@ -58,10 +65,9 @@ public class AuthController : ControllerBase
             });
         }
 
-        return Ok(new
-        {
-            message = "User registered successfully."
-        });
+        var authResponse = await CreateAuthResponseAsync(user);
+
+        return Ok(authResponse);
     }
 
     [HttpPost("login")]
@@ -90,7 +96,78 @@ public class AuthController : ControllerBase
             });
         }
 
-                 var secret = _configuration["Jwt:Secret"]
+        var authResponse = await CreateAuthResponseAsync(user);
+
+        return Ok(authResponse);
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(RefreshTokenRequest request)
+    {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var refreshTokenHash = HashToken(request.RefreshToken);
+
+        var existingRefreshToken = await _dbContext.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefaultAsync(rt => rt.TokenHash == refreshTokenHash);
+    
+        if (existingRefreshToken is null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid refresh token."
+            });
+        }
+
+        if (existingRefreshToken.RevokedAtUtc is not null)
+        {
+            return Unauthorized(new
+            {
+                message = "Refresh token has been revoked."
+            });
+        }
+
+        if (existingRefreshToken.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            return Unauthorized(new
+            {
+                message = "Refresh token has expired."
+            });
+        }
+
+        existingRefreshToken.RevokedAtUtc = DateTime.UtcNow;
+
+        var (newRefreshToken, refreshTokenValue) = BuildRefreshToken(existingRefreshToken.User);
+
+        existingRefreshToken.ReplacedByTokenHash = newRefreshToken.TokenHash;
+
+        _dbContext.RefreshTokens.Add(newRefreshToken);
+
+        var (accessToken, expiresAtUtc) = GenerateAccessToken(existingRefreshToken.User);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return Unauthorized(new { message = "Refresh token has already been used." });
+        }
+
+        return Ok(new AuthResponse(
+            accessToken,
+            refreshTokenValue,
+            expiresAtUtc
+        ));
+    }
+
+    //TODO move to service?
+    private (string AccessToken, DateTime ExpiresAtUtc) GenerateAccessToken(ApplicationUser user)
+    {
+        var secret = _configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT secret is not configured.");
 
         var issuer = _configuration["Jwt:Issuer"]
@@ -119,8 +196,56 @@ public class AuthController : ControllerBase
             expires: expiresAtUtc,
             signingCredentials: credentials);
 
-        var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+        return (new JwtSecurityTokenHandler().WriteToken(token), expiresAtUtc);
+    }
 
-        return Ok(new AuthResponse(accessToken, expiresAtUtc));
+    private async Task<string> CreateAndSaveRefreshTokenAsync(ApplicationUser user)
+    {
+        var (refreshToken, refreshTokenValue) = BuildRefreshToken(user);
+
+        _dbContext.RefreshTokens.Add(refreshToken);
+        await _dbContext.SaveChangesAsync();
+
+        return refreshTokenValue;
+    }
+
+    private async Task<AuthResponse> CreateAuthResponseAsync(ApplicationUser user)
+    {
+        var (accessToken, expiresAtUtc) = GenerateAccessToken(user);
+        var refreshTokenValue = await CreateAndSaveRefreshTokenAsync(user);
+
+        return new AuthResponse(
+            accessToken,
+            refreshTokenValue,
+            expiresAtUtc
+        );
+    }
+
+    private (RefreshToken RefreshToken, string RefreshTokenValue) BuildRefreshToken(ApplicationUser user)
+    {
+        var refreshTokenDays = int.Parse(_configuration["Jwt:RefreshTokenDays"] ?? "30");
+        var refreshTokenValue = GenerateRefreshTokenValue();
+
+        return (
+            new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                TokenHash = HashToken(refreshTokenValue),
+                UserId = user.Id,
+                CreatedAtUtc = DateTime.UtcNow,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(refreshTokenDays)
+            },
+            refreshTokenValue);
+    }
+
+    private static string GenerateRefreshTokenValue()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
+    private static string HashToken(string token)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(bytes);
     }
 }
