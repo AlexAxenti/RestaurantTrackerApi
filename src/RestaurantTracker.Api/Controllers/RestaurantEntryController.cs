@@ -23,7 +23,7 @@ public class RestaurantEntryController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
-    public async Task<IEnumerable<RestaurantEntryResponse>> GetByUserId(int userId, [FromQuery] EntryStatus? status = null)
+    public async Task<IEnumerable<RestaurantEntryResponse>> GetByUserId(string userId, [FromQuery] EntryStatus? status = null)
     {
         return await _restaurantEntryService.GetRestaurantEntriesByUserIdAsync(userId, status);
     }

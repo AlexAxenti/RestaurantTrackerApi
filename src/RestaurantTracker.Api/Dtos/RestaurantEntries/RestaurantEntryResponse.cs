@@ -4,7 +4,7 @@ namespace RestaurantTracker.Api.Dtos;
 
 public record RestaurantEntryResponse(
     int Id,
-    int UserId,
+    string UserId,
     EntryStatus Status,
     float? Rating,
     string? Notes,

@@ -35,7 +35,7 @@ public class RestaurantEntryService : IRestaurantEntryService
         return ToResponse(entry);
     }
 
-    public async Task<IEnumerable<RestaurantEntryResponse>> GetRestaurantEntriesByUserIdAsync(int userId, EntryStatus? status = null)
+    public async Task<IEnumerable<RestaurantEntryResponse>> GetRestaurantEntriesByUserIdAsync(string userId, EntryStatus? status = null)
     {
         var entries = await _context.RestaurantEntries
             .Where(e => e.UserId == userId && (!status.HasValue || e.Status == status.Value))
