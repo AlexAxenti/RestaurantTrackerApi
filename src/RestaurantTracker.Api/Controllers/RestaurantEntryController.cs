@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantTracker.Api.Dtos;
 using RestaurantTracker.Api.Entities;
@@ -7,6 +9,7 @@ namespace RestaurantTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/restaurant-entries")]
+[Authorize]
 public class RestaurantEntryController : ControllerBase
 {
     private readonly IRestaurantEntryService _restaurantEntryService;
@@ -19,30 +22,35 @@ public class RestaurantEntryController : ControllerBase
     [HttpGet("{id}")]
     public async Task<RestaurantEntryResponse?> GetById(int id)
     {
-        return await _restaurantEntryService.GetRestaurantEntryByIdAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        return await _restaurantEntryService.GetRestaurantEntryByIdAsync(id, userId);
     }
 
-    [HttpGet("user/{userId}")]
-    public async Task<IEnumerable<RestaurantEntryResponse>> GetByUserId(string userId, [FromQuery] EntryStatus? status = null)
+    [HttpGet]
+    public async Task<IEnumerable<RestaurantEntryResponse>> GetAll([FromQuery] EntryStatus? status = null)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         return await _restaurantEntryService.GetRestaurantEntriesByUserIdAsync(userId, status);
     }
 
     [HttpPost]
     public async Task<RestaurantEntryResponse> Create([FromBody] CreateRestaurantEntryRequest request)
     {
-        return await _restaurantEntryService.CreateRestaurantEntryAsync(request);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        return await _restaurantEntryService.CreateRestaurantEntryAsync(userId, request);
     }
 
     [HttpPut("{id}")]
     public async Task<RestaurantEntryResponse?> Update(int id, [FromBody] UpdateRestaurantEntryRequest request)
     {
-        return await _restaurantEntryService.UpdateRestaurantEntryAsync(id, request);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        return await _restaurantEntryService.UpdateRestaurantEntryAsync(id, userId, request);
     }
 
     [HttpDelete("{id}")]
     public async Task<bool> Delete(int id)
     {
-        return await _restaurantEntryService.DeleteRestaurantEntryAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        return await _restaurantEntryService.DeleteRestaurantEntryAsync(id, userId);
     }
 }

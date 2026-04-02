@@ -3,7 +3,6 @@ using RestaurantTracker.Api.Entities;
 namespace RestaurantTracker.Api.Dtos;
 
 public record CreateRestaurantEntryRequest(
-    string UserId,
     EntryStatus Status,
     float? Rating,
     string? Notes,

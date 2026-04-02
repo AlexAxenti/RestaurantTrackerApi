@@ -5,9 +5,9 @@ namespace RestaurantTracker.Api.Services;
 
 public interface IRestaurantEntryService
 {
-    Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request);
-    Task<RestaurantEntryResponse?> GetRestaurantEntryByIdAsync(int id);
+    Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(string userId, CreateRestaurantEntryRequest request);
+    Task<RestaurantEntryResponse?> GetRestaurantEntryByIdAsync(int id, string userId);
     Task<IEnumerable<RestaurantEntryResponse>> GetRestaurantEntriesByUserIdAsync(string userId, EntryStatus? status = null);
-    Task<RestaurantEntryResponse?> UpdateRestaurantEntryAsync(int id, UpdateRestaurantEntryRequest request);
-    Task<bool> DeleteRestaurantEntryAsync(int id);
+    Task<RestaurantEntryResponse?> UpdateRestaurantEntryAsync(int id, string userId, UpdateRestaurantEntryRequest request);
+    Task<bool> DeleteRestaurantEntryAsync(int id, string userId);
 }

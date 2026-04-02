@@ -28,10 +28,11 @@ public class RestaurantEntryService : IRestaurantEntryService
             entry.RestaurantAddress
         );
 
-    public async Task<RestaurantEntryResponse?> GetRestaurantEntryByIdAsync(int id)
+    //TODO return proper error codes
+    public async Task<RestaurantEntryResponse?> GetRestaurantEntryByIdAsync(int id, string userId)
     {
         var entry = await _context.RestaurantEntries.FindAsync(id);
-        if (entry == null) return null;
+        if (entry == null || entry.UserId != userId) return null;
         return ToResponse(entry);
     }
 
@@ -44,11 +45,11 @@ public class RestaurantEntryService : IRestaurantEntryService
         return entries.Select(ToResponse);
     }
 
-    public async Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(CreateRestaurantEntryRequest request)
+    public async Task<RestaurantEntryResponse> CreateRestaurantEntryAsync(string userId, CreateRestaurantEntryRequest request)
     {
         var newEntry = new RestaurantEntry
         {
-            UserId = request.UserId,
+            UserId = userId,
             GooglePlaceId = request.GooglePlaceId,
             RestaurantName = request.RestaurantName,
             RestaurantAddress = request.RestaurantAddress,
@@ -65,10 +66,10 @@ public class RestaurantEntryService : IRestaurantEntryService
         return ToResponse(newEntry);
     }
 
-    public async Task<RestaurantEntryResponse?> UpdateRestaurantEntryAsync(int id, UpdateRestaurantEntryRequest request)
+    public async Task<RestaurantEntryResponse?> UpdateRestaurantEntryAsync(int id, string userId, UpdateRestaurantEntryRequest request)
     {
         var entry = await _context.RestaurantEntries.FindAsync(id);
-        if (entry == null) return null;
+        if (entry == null || entry.UserId != userId) return null;
 
         if (request.Status.HasValue) entry.Status = request.Status.Value;
         if (request.Rating.HasValue) entry.Rating = request.Rating.Value;
@@ -82,10 +83,10 @@ public class RestaurantEntryService : IRestaurantEntryService
         return ToResponse(entry);
     }
 
-    public async Task<bool> DeleteRestaurantEntryAsync(int id)
+    public async Task<bool> DeleteRestaurantEntryAsync(int id, string userId)
     {
         var entry = await _context.RestaurantEntries.FindAsync(id);
-        if (entry == null) return false;
+        if (entry == null || entry.UserId != userId) return false;
 
         _context.RestaurantEntries.Remove(entry);
         await _context.SaveChangesAsync();
