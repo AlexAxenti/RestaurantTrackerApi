@@ -66,14 +66,16 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/openapi/v1.json", "RestaurantTracker API v1");
     });
+
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+HealthEndpoint.Map(app);
 SearchEndpoint.Map(app);
 
 app.Run();
