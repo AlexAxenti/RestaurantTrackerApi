@@ -1,3 +1,6 @@
+using RestaurantTracker.Api.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace RestaurantTracker.Api.Endpoints;
 
 public static class HealthEndpoint
