@@ -53,6 +53,7 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
