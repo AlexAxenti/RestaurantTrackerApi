@@ -68,6 +68,10 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient<IGooglePlacesService, GooglePlacesService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 var app = builder.Build();
 
