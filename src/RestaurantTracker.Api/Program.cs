@@ -7,6 +7,7 @@ using RestaurantTracker.Api.Endpoints;
 using RestaurantTracker.Api.Entities;
 using RestaurantTracker.Api.Services;
 using System.Text;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services
     .AddIdentityCore<ApplicationUser>(options => 
     {
@@ -52,6 +54,16 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestMethod
+        | HttpLoggingFields.RequestPath
+        | HttpLoggingFields.ResponseStatusCode
+        | HttpLoggingFields.Duration;
+
+    options.CombineLogs = true;
+});
+
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
@@ -70,6 +82,8 @@ if (app.Environment.IsDevelopment())
 
     app.UseHttpsRedirection();
 }
+
+app.UseHttpLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();
